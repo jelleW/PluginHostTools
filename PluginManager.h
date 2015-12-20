@@ -4,7 +4,7 @@
 #include <iostream>
 #include <map>
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 
 #pragma once
 class PluginManager
@@ -51,10 +51,10 @@ public:
 
 	PluginEditor* getPluginEditor(AudioProcessorGraph::Node* pluginNode);
 
-	AudioPluginFormatManager* formatManager;
+	AudioPluginFormatManager formatManager;
 	std::vector<String> getKnownPluginNames();
 
-	AudioProcessorGraph::Node* outputNode;
+	ScopedPointer<AudioProcessorGraph::Node> outputNode;
 
 private:
 	std::vector<AudioPluginInstance*> pluginInstances;
@@ -83,12 +83,12 @@ private:
 
 		bool loadSavedPluginDirectories();
 
-		KnownPluginList* knownPluginList;
+		KnownPluginList knownPluginList;
 		AudioPluginFormatManager* formatManager;
 		KnownPluginList::SortMethod pluginSortMethod;
 	};
 
-	PluginManager::KnownPluginScanner* knownPluginScanner;
+	PluginManager::KnownPluginScanner knownPluginScanner;
 
 public:
 	PluginManager::KnownPluginScanner* getPluginScanner();

@@ -11,7 +11,7 @@
 #ifndef MULTIOUTMIDIIN_H_INCLUDED
 #define MULTIOUTMIDIIN_H_INCLUDED
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 
 class MultiOutMidiIn
 	: public MidiInputCallback

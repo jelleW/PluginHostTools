@@ -27,19 +27,17 @@ void MidiManager::clear()
 MidiManager::MidiManager()
 {
 	midiInputDevices = MidiInput::getDevices();
+	midiOutputDevices = MidiOutput::getDevices();
 }
 
 MidiManager::~MidiManager()
-{
-	for (auto it = inputList.begin(); it != inputList.end(); ++it)
-		delete it->second;
-	
+{	
 	inputList.clear();
 	midiInputDevices.clear();
 	inputInstances.clear();
 }
 
-int MidiManager::getIndexFromName(String name)
+int MidiManager::getInputIndexFromName(String name)
 {
 	for (int i = 0; i < midiInputDevices.size(); i++)
 		if (midiInputDevices[i] == name)
@@ -47,9 +45,17 @@ int MidiManager::getIndexFromName(String name)
 	return -1;
 }
 
+int MidiManager::getOutputIndexFromName(String name)
+{
+	for (int i = 0; i < midiOutputDevices.size(); i++)
+		if (midiOutputDevices[i] == name)
+			return i;
+	return -1;
+}
+
 MultiOutMidiIn* MidiManager::getInput(String name)
 {
-	return getInput(getIndexFromName(name));
+	return getInput(getInputIndexFromName(name));
 }
 
 MultiOutMidiIn* MidiManager::getInput(int index)
@@ -60,17 +66,42 @@ MultiOutMidiIn* MidiManager::getInput(int index)
 	if (inputList.find(index) != inputList.end())
 		return inputList[index];
 
-	MultiOutMidiIn* midiInput = new MultiOutMidiIn(index);
+	MultiOutMidiIn midiInput = MultiOutMidiIn(index);
 
-	if (midiInput != nullptr)
-		inputList[index] = midiInput;
+	inputList[index] = &midiInput;
 
-	return midiInput;
+	return &midiInput;
+}
+
+MidiOutput* MidiManager::getOutput(String name)
+{
+	return getOutput(getOutputIndexFromName(name));
+}
+
+MidiOutput* MidiManager::getOutput(int index)
+{
+	if (index == -1)
+		return nullptr;
+
+	if (outputList.find(index) != outputList.end())
+		return outputList[index];
+
+	MidiOutput* midiOutput= MidiOutput::openDevice(index);
+
+	if(midiOutput != nullptr)
+		outputList[index] = midiOutput;
+
+	return midiOutput;
 }
 
 bool MidiManager::inputExists(String name)
 {
-	return getIndexFromName(name) != -1;
+	return getInputIndexFromName(name) != -1;
+}
+
+bool MidiManager::outputExists(String name)
+{
+	return getOutputIndexFromName(name) != -1;
 }
 
 /*

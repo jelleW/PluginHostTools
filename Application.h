@@ -4,7 +4,7 @@
 #define APPLICATION_H_INCLUDED
 
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 #include "BASEPluginHostApplication.h"
 
 static class Application

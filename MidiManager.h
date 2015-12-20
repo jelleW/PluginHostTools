@@ -11,7 +11,7 @@
 #ifndef MIDIMANAGER_H_INCLUDED
 #define MIDIMANAGER_H_INCLUDED
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 #include "MultiOutMidiIn.h"
 #include "MidiInputProcessor.h"
 
@@ -31,9 +31,13 @@ public:
 	MidiInputProcessor* getNewMidiInputProcessorInstance();
 
 	bool inputExists(String name);
+	bool outputExists(String name);
 
 	MultiOutMidiIn* getInput(String name);
 	MultiOutMidiIn* getInput(int index);
+
+	MidiOutput* getOutput(String name);
+	MidiOutput* getOutput(int index);
 
 	void start();
 	void stop();
@@ -42,15 +46,19 @@ public:
 	MidiInput* getInput(String name);
 	MidiInput* getInput(int index);*/
 
-	int getIndexFromName(String name);
+	int getInputIndexFromName(String name);
+	int getOutputIndexFromName(String name);
 
 private:
 	MidiManager();
 	
 	StringArray midiInputDevices;
-	std::map<int, MultiOutMidiIn*> inputList;
+	StringArray midiOutputDevices;
+
+	std::map<int, ScopedPointer<MultiOutMidiIn>> inputList;
+	std::map<int, ScopedPointer<MidiOutput>> outputList;
 	
-	std::vector<MidiInputProcessor*> inputInstances;
+	std::vector<ScopedPointer<MidiInputProcessor>> inputInstances;
 
 
 };

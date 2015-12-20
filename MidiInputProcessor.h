@@ -11,7 +11,7 @@
 #ifndef MIDIINPUTPROCESSOR_H_INCLUDED
 #define MIDIINPUTPROCESSOR_H_INCLUDED
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 #include "AudioGraphManager.h"
 
 class MidiInputProcessor : public AudioProcessor

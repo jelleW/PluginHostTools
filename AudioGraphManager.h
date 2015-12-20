@@ -1,7 +1,7 @@
 #ifndef AUDIOGRAPHMANAGER_H_INCLUDED
 #define AUDIOGRAPHMANAGER_H_INCLUDED
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 #include "MidiInputProcessor.h"
 #include <iostream>
 #include <map>

@@ -11,7 +11,7 @@
 #ifndef BASEPLUGINHOSTAPPLICATION_H_INCLUDED
 #define BASEPLUGINHOSTAPPLICATION_H_INCLUDED
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 
 class BASEPluginHostApplication : public JUCEApplication
 {

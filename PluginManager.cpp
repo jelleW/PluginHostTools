@@ -20,39 +20,37 @@ void PluginManager::clear()
 //////////////////////////////////////////
 
 PluginManager::PluginManager()
+	:knownPluginScanner(&formatManager)
 {
-	formatManager = new AudioPluginFormatManager();
-	formatManager->addDefaultFormats();
-
-	knownPluginScanner = new KnownPluginScanner(formatManager);
+	formatManager.addDefaultFormats();
 }
 
 PluginManager::~PluginManager()
 {
 	pluginInstances.clear();
-	delete formatManager;
-	delete knownPluginScanner;
 }
 
 PluginManager::KnownPluginScanner* PluginManager::getPluginScanner()
 {
-	return knownPluginScanner;
+	return &knownPluginScanner;
 }
 
 AudioPluginInstance* PluginManager::getNewPluginInstance(int n, double sampleRate, double blockSize)
 {
-	return getNewPluginInstanceFromDesc(knownPluginScanner->getKnownPluginList()->getType(n), sampleRate, blockSize);
+	return getNewPluginInstanceFromDesc(knownPluginScanner.getKnownPluginList()->getType(n), sampleRate, blockSize);
 }
 
 AudioPluginInstance* PluginManager::getNewPluginInstance(String identifierString, double sampleRate, double blockSize)
 {
-	return getNewPluginInstanceFromDesc(knownPluginScanner->getKnownPluginList()->getTypeForIdentifierString(identifierString), sampleRate, blockSize);
+	return getNewPluginInstanceFromDesc(knownPluginScanner.getKnownPluginList()->getTypeForIdentifierString(identifierString), sampleRate, blockSize);
 }
 
 AudioPluginInstance* PluginManager::getNewPluginInstanceFromDesc(PluginDescription* desc, double sampleRate, double blockSize)
 {
+	if (desc == nullptr)
+		return nullptr;
 	String errorMessage;
-	AudioPluginInstance* instance = formatManager->createPluginInstance(*desc, sampleRate, blockSize, errorMessage);
+	AudioPluginInstance* instance = formatManager.createPluginInstance(*desc, sampleRate, blockSize, errorMessage);
 	pluginInstances.push_back(instance);
 
 	return instance;
@@ -60,12 +58,12 @@ AudioPluginInstance* PluginManager::getNewPluginInstanceFromDesc(PluginDescripti
 
 PluginDescription* PluginManager::getPluginDescription(int n)
 {
-	return knownPluginScanner->getKnownPluginList()->getType(n);
+	return knownPluginScanner.getKnownPluginList()->getType(n);
 }
 
 PluginDescription* PluginManager::getPluginDescription(String identifierString)
 {
-	return knownPluginScanner->getKnownPluginList()->getTypeForIdentifierString(identifierString);
+	return knownPluginScanner.getKnownPluginList()->getTypeForIdentifierString(identifierString);
 }
 
 
@@ -76,9 +74,9 @@ PluginManager::PluginEditor* PluginManager::getPluginEditor(AudioProcessorGraph:
 
 std::vector<String> PluginManager::getKnownPluginNames()
 {
-	std::vector<String> knownNames(knownPluginScanner->getKnownPluginList()->getNumTypes());
-	for (int i = 0; i < knownPluginScanner->getKnownPluginList()->getNumTypes(); i++)
-		knownNames[i] = knownPluginScanner->getKnownPluginList()->getType(i)->name;
+	std::vector<String> knownNames(knownPluginScanner.getKnownPluginList()->getNumTypes());
+	for (int i = 0; i < knownPluginScanner.getKnownPluginList()->getNumTypes(); i++)
+		knownNames[i] = knownPluginScanner.getKnownPluginList()->getType(i)->name;
 	return knownNames;
 }
 
@@ -132,12 +130,11 @@ PluginManager::PluginEditor::~PluginEditor()
 PluginManager::KnownPluginScanner::KnownPluginScanner(AudioPluginFormatManager* _formatManager)
 {
 	formatManager = _formatManager;
-	knownPluginList = new KnownPluginList();
 
 	ScopedPointer<XmlElement> savedPluginList = Application::getAppProperties().getUserSettings()->getXmlValue("pluginList");
 	
 	if (savedPluginList != nullptr)
-		knownPluginList->recreateFromXml(*savedPluginList);
+		knownPluginList.recreateFromXml(*savedPluginList);
 
 	savedPluginList = nullptr;
 
@@ -151,18 +148,17 @@ PluginManager::KnownPluginScanner::~KnownPluginScanner()
 	if(savedPluginDirectories != nullptr)
 	Application::getAppProperties().getUserSettings()->setValue("pluginDirectories", savedPluginDirectories);
 
-	ScopedPointer<XmlElement> savedPluginList(knownPluginList->createXml());
+	ScopedPointer<XmlElement> savedPluginList(knownPluginList.createXml());
 	if(savedPluginList != nullptr)
 		Application::getAppProperties().getUserSettings()->setValue("pluginList", savedPluginList);
 
 	pluginFolders.clear();
-	knownPluginList->clear();
-	delete knownPluginList;
+	knownPluginList.clear();
 }
 
 KnownPluginList* PluginManager::KnownPluginScanner::getKnownPluginList()
 {
-	return knownPluginList;
+	return &knownPluginList;
 }
 
 std::map<String, bool> PluginManager::KnownPluginScanner::getPluginFolders()
@@ -230,7 +226,7 @@ void PluginManager::KnownPluginScanner::rescan()
 	for (auto it = pluginFolders.begin(); it != pluginFolders.end(); ++it)
 		for (int nFormat = 0; nFormat < formatManager->getNumFormats(); nFormat++)
 		{
-			ScanFolder(it->first, *formatManager->getFormat(nFormat), it->second, true);
+			ScanFolder(it->first, *(formatManager->getFormat(nFormat)), it->second, true);
 		}
 }
 
@@ -238,10 +234,8 @@ void PluginManager::KnownPluginScanner::ScanFolder(String folder, AudioPluginFor
 {
 	FileSearchPath &path = FileSearchPath(folder);
 
-	PluginDirectoryScanner* scanner = new PluginDirectoryScanner(*knownPluginList, format, path, searchSubFolders, Application::getDeadMansPedalFile());
+	ScopedPointer<PluginDirectoryScanner> scanner = new PluginDirectoryScanner(knownPluginList, format, path, searchSubFolders, Application::getDeadMansPedalFile());
 	String name;
 
 	while (scanner->scanNextFile(dontRescanIfAlreadyInList, name)) {};
-
-	delete scanner;
 }
