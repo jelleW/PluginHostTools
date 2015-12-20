@@ -15,7 +15,7 @@ MultiOutMidiIn::MultiOutMidiIn(String _devName)
 {
 	devName = _devName;
 	if (MidiManager::getInstance()->inputExists(devName))
-		midiInput = MidiInput::openDevice(MidiManager::getInstance()->getIndexFromName(devName), this);
+		midiInput = MidiInput::openDevice(MidiManager::getInstance()->getInputIndexFromName(devName), this);
 }
 
 MultiOutMidiIn::MultiOutMidiIn(int index)
