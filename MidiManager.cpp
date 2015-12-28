@@ -66,11 +66,11 @@ MultiOutMidiIn* MidiManager::getInput(int index)
 	if (inputList.find(index) != inputList.end())
 		return inputList[index];
 
-	MultiOutMidiIn midiInput = MultiOutMidiIn(index);
+	MultiOutMidiIn* midiInput = new MultiOutMidiIn(index);
 
-	inputList[index] = &midiInput;
+	inputList[index] = midiInput;
 
-	return &midiInput;
+	return midiInput;
 }
 
 MidiOutput* MidiManager::getOutput(String name)
