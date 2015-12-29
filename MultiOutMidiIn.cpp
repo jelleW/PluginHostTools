@@ -30,6 +30,11 @@ MultiOutMidiIn::~MultiOutMidiIn()
 	delete midiInput;
 }
 
+String MultiOutMidiIn::getDevName()
+{
+	return devName;
+}
+
 void MultiOutMidiIn::start()
 {
 	midiInput->start();

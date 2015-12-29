@@ -24,6 +24,8 @@ public:
 
 	virtual void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
 	void addListener(MidiInputCallback* callback);
+	
+	String getDevName();
 
 	void start();
 	void stop();
