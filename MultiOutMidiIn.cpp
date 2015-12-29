@@ -45,13 +45,14 @@ void MultiOutMidiIn::stop()
 	midiInput->stop();
 }
 
-void MultiOutMidiIn::addListener(MidiInputCallback* callback)
+void MultiOutMidiIn::addListener(String name, MidiInputCallback* callback)
 {
-	listeners.push_back(callback);
+	if(listeners.find(name) == listeners.end())
+		listeners[name] = callback;
 }
 
 void MultiOutMidiIn::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
-	for (int i = 0; i < listeners.size(); i++)
-		listeners[i]->handleIncomingMidiMessage(source, message);
+	for (std::map<String, MidiInputCallback*>::iterator it = listeners.begin(); it != listeners.end(); ++it)
+		it->second->handleIncomingMidiMessage(source, message);
 }

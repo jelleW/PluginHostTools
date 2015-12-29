@@ -12,6 +12,7 @@
 #define MULTIOUTMIDIIN_H_INCLUDED
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "<vector.h>"
 
 class MultiOutMidiIn
 	: public MidiInputCallback
@@ -23,7 +24,7 @@ public:
 	~MultiOutMidiIn();
 
 	virtual void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
-	void addListener(MidiInputCallback* callback);
+	void addListener(String name, MidiInputCallback* callback);
 	
 	String getDevName();
 
@@ -31,7 +32,7 @@ public:
 	void stop();
 
 private:
-	std::vector<MidiInputCallback*> listeners;
+	std::map<String, MidiInputCallback*> listeners;
 	String devName;
 
 	MidiInput* midiInput;
