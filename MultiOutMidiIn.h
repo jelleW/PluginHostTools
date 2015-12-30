@@ -25,6 +25,7 @@ public:
 
 	virtual void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message) override;
 	void addListener(String name, MidiInputCallback* callback);
+	void addListener(MidiInputCallback* callback);
 	
 	String getDevName();
 
@@ -32,7 +33,8 @@ public:
 	void stop();
 
 private:
-	std::map<String, MidiInputCallback*> listeners;
+	std::map<String, MidiInputCallback*> listenersMap;
+	std::vector<MidiInputCallback*> listeners;
 	String devName;
 
 	MidiInput* midiInput;
