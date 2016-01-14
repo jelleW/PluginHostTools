@@ -37,9 +37,12 @@ public:
 
 	ApplicationProperties* appProperties;
 
+	String getCommandArgs();
+
 	//==============================================================================
 private:
 	String appName;
+	String commandArgs;
 };
 
 

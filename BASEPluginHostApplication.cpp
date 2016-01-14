@@ -34,7 +34,14 @@ void BASEPluginHostApplication::initialise(const String& commandLine)
 	appProperties->setStorageParameters(options);
 	appProperties->saveIfNeeded();
 
+	commandArgs = commandLine;
+
 	this->init();
+}
+
+String BASEPluginHostApplication::getCommandArgs()
+{
+	return commandArgs;
 }
 
 void BASEPluginHostApplication::shutdown()
