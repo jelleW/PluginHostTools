@@ -24,26 +24,34 @@ void MidiManager::clear()
 	delete MidiManager::instance;
 }
 
-void MidiManager::addActiveDeviceListener(Listener * listener)
+void MidiManager::addActiveDevicesChangeListener(MidiDevicesChangeListener* listener)
 {
-	midiDeviceListeners.push_back(listener);
+	midiDevicesChangeListeners.add(listener);
 }
 
 MidiManager::MidiManager()
 	: midiDevicesListenerThread(&MidiManager::midiDevicesListener, this)
 {
 	availableMidiInputDevices = MidiInput::getDevices();
-	//midiInputDevices = MidiInput::getDevices();
-	midiOutputDevices = MidiOutput::getDevices();
+	availablemidiOutputDevices = MidiOutput::getDevices();
 }
 
 std::thread MidiManager::midiDevicesListener()
 {
-	return {};
-	//StringArray midiIn,
 	while (true)
 	{
-		//if()
+		if (availableMidiInputDevices.size() != MidiInput::getDevices().size() || 
+			availablemidiOutputDevices.size() != MidiOutput::getDevices().size())
+		{
+			availableMidiInputDevices = MidiInput::getDevices();
+			availablemidiOutputDevices = MidiOutput::getDevices();
+			
+			const MessageManagerLock mmLock;
+			for each (MidiDevicesChangeListener* listener in midiDevicesChangeListeners)
+			{
+				listener->activeMidiDevicesListChanged();
+			}
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 }
@@ -112,7 +120,16 @@ MultiOutMidiIn* MidiManager::getInput(int index)
 
 MidiOutput* MidiManager::getOutput(String name)
 {
-	return getOutput(getOutputIndexFromName(name));
+	int index = getInputIndexFromName(name);
+
+	if (index == -1)
+	{
+		index = midiOutputDevices.size();
+		midiOutputDevices.add(name);
+		return outputList[index] = MidiOutput::openDevice(index);
+	}
+
+	return getOutput(index);
 }
 
 MidiOutput* MidiManager::getOutput(int index)

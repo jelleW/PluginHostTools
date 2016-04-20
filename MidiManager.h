@@ -57,13 +57,13 @@ public:
 	StringArray getActiveInputDevices();
 	StringArray getInactiveInputDevices();
 
-	class Listener
+	class MidiDevicesChangeListener
 	{
 	public:
-		virtual void ActiveMidiDevicesListChanged() = 0;
+		virtual void activeMidiDevicesListChanged() = 0;
 	};
 	
-	void addActiveDeviceListener(Listener* listener);
+	void addActiveDevicesChangeListener(MidiDevicesChangeListener* listener);
 
 private:
 	MidiManager();
@@ -71,10 +71,9 @@ private:
 	StringArray midiInputDevices;
 	StringArray midiOutputDevices;
 
-	StringArray currentActiveMidiInputDevices;
-	StringArray currentActiveMidiOutputDevices;
+	StringArray availableMidiInputDevices, availablemidiOutputDevices;
 
-	std::vector<MidiManager::Listener*> midiDeviceListeners;
+	Array<MidiManager::MidiDevicesChangeListener*> midiDevicesChangeListeners;
 
 	std::map<int, ScopedPointer<MultiOutMidiIn>> inputList;
 	std::map<int, ScopedPointer<MidiOutput>> outputList;
@@ -83,8 +82,6 @@ private:
 
 	std::thread midiDevicesListener();
 	std::thread midiDevicesListenerThread;
-
-	StringArray availableMidiInputDevices;
 };
 
 
