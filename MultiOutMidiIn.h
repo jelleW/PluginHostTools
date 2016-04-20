@@ -37,7 +37,7 @@ private:
 	std::vector<MidiInputCallback*> listeners;
 	String devName;
 
-	MidiInput* midiInput;
+	MidiInput* midiInput = nullptr;
 };
 
 

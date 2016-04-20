@@ -46,11 +46,11 @@ String BASEPluginHostApplication::getCommandArgs()
 
 void BASEPluginHostApplication::shutdown()
 {
+	this->close();
+
 	PluginManager::clear();
 	AudioGraphManager::clear();
 	MidiManager::clear();
-
-	this->close();
 
 	appProperties->saveIfNeeded();
 	delete appProperties;

@@ -72,15 +72,15 @@ PluginManager::PluginEditor* PluginManager::getPluginEditor(AudioProcessorGraph:
 	return PluginManager::PluginEditor::getPluginEditor(pluginNode);
 }
 
-std::vector<String> PluginManager::getKnownPluginNames()
+StringArray PluginManager::getKnownPluginNames()
 {
-	std::vector<String> knownNames(knownPluginScanner.getKnownPluginList()->getNumTypes());
+	StringArray knownNames;
 	for (int i = 0; i < knownPluginScanner.getKnownPluginList()->getNumTypes(); i++)
-		knownNames[i] = knownPluginScanner.getKnownPluginList()->getType(i)->name;
+		knownNames.add(knownPluginScanner.getKnownPluginList()->getType(i)->name);
 	return knownNames;
 }
 
-std::map<int, PluginManager::PluginEditor*> PluginManager::PluginEditor::nodeEditors;
+std::map<int, ScopedPointer<PluginManager::PluginEditor>> PluginManager::PluginEditor::nodeEditors;
 
 PluginManager::PluginEditor* PluginManager::PluginEditor::getPluginEditor(AudioProcessorGraph::Node* pluginNode)
 {
@@ -96,11 +96,6 @@ PluginManager::PluginEditor* PluginManager::PluginEditor::getPluginEditor(AudioP
 
 void PluginManager::PluginEditor::clear()
 {
-	for (std::map<int, PluginManager::PluginEditor*>::iterator ii = PluginManager::PluginEditor::nodeEditors.begin(); ii != PluginManager::PluginEditor::nodeEditors.end(); ++ii)
-	{
-		delete (PluginEditor*) ii->second;
-	}
-
 	PluginManager::PluginEditor::nodeEditors.clear();
 }
 

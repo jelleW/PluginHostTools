@@ -58,12 +58,11 @@ private:
 
 	AudioProcessorGraph::Node* inputNode;
 	AudioProcessorGraph::Node* outputNode;
-
 	AudioProcessorGraph::Node* inputMidiNode;
 
 	AudioDeviceManager* deviceManager;
 	
-	std::vector<String> midiInputDevices;
+	StringArray midiInputDevices;
 
 };
 

@@ -16,6 +16,7 @@
 #include "MidiInputProcessor.h"
 
 #include <map>
+#include <thread>
 
 class MidiManager
 {
@@ -42,6 +43,8 @@ public:
 	void start();
 	void stop();
 
+	void restart();
+
 	/*
 	MidiInput* getInput(String name);
 	MidiInput* getInput(int index);*/
@@ -49,18 +52,39 @@ public:
 	int getInputIndexFromName(String name);
 	int getOutputIndexFromName(String name);
 
+	int getCurrentInputDeviceIndexFromName(String name);
+
+	StringArray getActiveInputDevices();
+	StringArray getInactiveInputDevices();
+
+	class Listener
+	{
+	public:
+		virtual void ActiveMidiDevicesListChanged() = 0;
+	};
+	
+	void addActiveDeviceListener(Listener* listener);
+
 private:
 	MidiManager();
 	
 	StringArray midiInputDevices;
 	StringArray midiOutputDevices;
 
+	StringArray currentActiveMidiInputDevices;
+	StringArray currentActiveMidiOutputDevices;
+
+	std::vector<MidiManager::Listener*> midiDeviceListeners;
+
 	std::map<int, ScopedPointer<MultiOutMidiIn>> inputList;
 	std::map<int, ScopedPointer<MidiOutput>> outputList;
 	
-	std::vector<ScopedPointer<MidiInputProcessor>> inputInstances;
+	Array<MidiInputProcessor*> inputInstances;
 
+	std::thread midiDevicesListener();
+	std::thread midiDevicesListenerThread;
 
+	StringArray availableMidiInputDevices;
 };
 
 

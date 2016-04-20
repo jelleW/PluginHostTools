@@ -35,7 +35,7 @@ AudioGraphManager::AudioGraphManager()
 
 AudioGraphManager::~AudioGraphManager()
 {
-	graph.clear();
+	//graph.clear();
 	graphPlayer.setProcessor(nullptr);
 	deviceManager->removeAudioCallback(&graphPlayer);
 }

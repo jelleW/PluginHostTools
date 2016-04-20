@@ -31,7 +31,7 @@ public:
 		AudioProcessorGraph::Node* pluginNode;
 		float getDesktopScaleFactor() const override { return 1.0f; }
 
-		static std::map<int, PluginEditor*> nodeEditors;
+		static std::map<int, ScopedPointer<PluginEditor>> nodeEditors;
 	};
 
 private:
@@ -52,7 +52,7 @@ public:
 	PluginEditor* getPluginEditor(AudioProcessorGraph::Node* pluginNode);
 
 	AudioPluginFormatManager formatManager;
-	std::vector<String> getKnownPluginNames();
+	StringArray getKnownPluginNames();
 
 	ScopedPointer<AudioProcessorGraph::Node> outputNode;
 

@@ -14,8 +14,6 @@
 MultiOutMidiIn::MultiOutMidiIn(String _devName)
 {
 	devName = _devName;
-	if (MidiManager::getInstance()->inputExists(devName))
-		midiInput = MidiInput::openDevice(MidiManager::getInstance()->getInputIndexFromName(devName), this);
 }
 
 MultiOutMidiIn::MultiOutMidiIn(int index)
@@ -37,12 +35,23 @@ String MultiOutMidiIn::getDevName()
 
 void MultiOutMidiIn::start()
 {
-	midiInput->start();
+	if (MidiManager::getInstance()->inputExists(devName))
+	{
+		midiInput = MidiInput::openDevice(MidiManager::getInstance()->getCurrentInputDeviceIndexFromName(devName), this);
+
+		if(midiInput != nullptr)
+			midiInput->start();
+	}
 }
 
 void MultiOutMidiIn::stop()
 {
-	midiInput->stop();
+	if (midiInput != nullptr)
+	{
+		midiInput->stop();
+		delete midiInput;
+		midiInput = nullptr;
+	}
 }
 
 void MultiOutMidiIn::addListener(String name, MidiInputCallback* callback)
