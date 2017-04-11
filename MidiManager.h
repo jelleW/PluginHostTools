@@ -52,10 +52,9 @@ public:
 	int getInputIndexFromName(String name);
 	int getOutputIndexFromName(String name);
 
-	int getCurrentInputDeviceIndexFromName(String name);
-
-	StringArray getActiveInputDevices();
-	StringArray getInactiveInputDevices();
+	StringArray getMidiInputDevices();
+	StringArray getMidiOutputDevices();
+	StringArray getAvailableDevices();
 
 	class MidiDevicesChangeListener
 	{
@@ -67,21 +66,19 @@ public:
 
 private:
 	MidiManager();
-	
-	StringArray midiInputDevices;
-	StringArray midiOutputDevices;
 
-	StringArray availableMidiInputDevices, availablemidiOutputDevices;
+	StringArray availableMidiInputDevices, availableMidiOutputDevices;
 
 	Array<MidiManager::MidiDevicesChangeListener*> midiDevicesChangeListeners;
 
-	std::map<int, ScopedPointer<MultiOutMidiIn>> inputList;
-	std::map<int, ScopedPointer<MidiOutput>> outputList;
+	std::map<String, ScopedPointer<MultiOutMidiIn>> inputList;
+	std::map<String, ScopedPointer<MidiOutput>> outputList;
 	
 	Array<MidiInputProcessor*> inputInstances;
 
 	std::thread midiDevicesListener();
 	std::thread midiDevicesListenerThread;
+	bool searchForMidiDevices = true;
 };
 
 

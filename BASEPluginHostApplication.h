@@ -28,6 +28,8 @@ public:
 	
 	virtual void init();
 	virtual void close();
+	
+	DocumentWindow* getMainWindow();
 
 	void shutdown() override;
 	//==============================================================================
@@ -38,6 +40,9 @@ public:
 	ApplicationProperties* appProperties;
 
 	String getCommandArgs();
+
+protected:
+	ScopedPointer<DocumentWindow> mainWindow;
 
 	//==============================================================================
 private:

@@ -37,7 +37,10 @@ void MultiOutMidiIn::start()
 {
 	if (MidiManager::getInstance()->inputExists(devName))
 	{
-		midiInput = MidiInput::openDevice(MidiManager::getInstance()->getCurrentInputDeviceIndexFromName(devName), this);
+		if (devName == "2- A-PRO 1")
+			int a = 5;
+
+		//midiInput = MidiInput::openDevice(MidiManager::getInstance()->getInputIndexFromName(devName), this);
 
 		if(midiInput != nullptr)
 			midiInput->start();
@@ -49,8 +52,9 @@ void MultiOutMidiIn::stop()
 	if (midiInput != nullptr)
 	{
 		midiInput->stop();
+		/*
 		delete midiInput;
-		midiInput = nullptr;
+		midiInput = nullptr;*/
 	}
 }
 
@@ -63,6 +67,18 @@ void MultiOutMidiIn::addListener(String name, MidiInputCallback* callback)
 void MultiOutMidiIn::addListener(MidiInputCallback* callback)
 {
 	listeners.push_back(callback);
+}
+
+void MultiOutMidiIn::removeListener(String name)
+{
+	delete listenersMap[name];
+}
+
+void MultiOutMidiIn::removeListener(MidiInputCallback * callback)
+{
+	for (auto it = listeners.begin(); it != listeners.end(); ++it)
+		if (*it == callback)
+			listeners.erase(it);
 }
 
 void MultiOutMidiIn::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)

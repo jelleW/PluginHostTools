@@ -33,18 +33,18 @@ MidiManager::MidiManager()
 	: midiDevicesListenerThread(&MidiManager::midiDevicesListener, this)
 {
 	availableMidiInputDevices = MidiInput::getDevices();
-	availablemidiOutputDevices = MidiOutput::getDevices();
+	availableMidiOutputDevices = MidiOutput::getDevices();
 }
 
 std::thread MidiManager::midiDevicesListener()
 {
-	while (true)
+	while (searchForMidiDevices)
 	{
 		if (availableMidiInputDevices.size() != MidiInput::getDevices().size() || 
-			availablemidiOutputDevices.size() != MidiOutput::getDevices().size())
+			availableMidiOutputDevices.size() != MidiOutput::getDevices().size())
 		{
 			availableMidiInputDevices = MidiInput::getDevices();
-			availablemidiOutputDevices = MidiOutput::getDevices();
+			availableMidiOutputDevices = MidiOutput::getDevices();
 			
 			const MessageManagerLock mmLock;
 			for each (MidiDevicesChangeListener* listener in midiDevicesChangeListeners)
@@ -52,53 +52,40 @@ std::thread MidiManager::midiDevicesListener()
 				listener->activeMidiDevicesListChanged();
 			}
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(250));
 	}
+	return{};
 }
 
 MidiManager::~MidiManager()
 {	
 	inputList.clear();
-	midiInputDevices.clear();
 	inputInstances.clear();
 
+	searchForMidiDevices = false;
 	midiDevicesListenerThread.join();
 }
 
 int MidiManager::getInputIndexFromName(String name)
 {
-	for (int i = 0; i < midiInputDevices.size(); i++)
-		if (midiInputDevices[i] == name)
+	for (int i = 0; i < availableMidiInputDevices.size(); i++)
+		if (availableMidiInputDevices[i] == name)
 			return i;
 	return -1;
 }
 
 int MidiManager::getOutputIndexFromName(String name)
 {
-	for (int i = 0; i < midiOutputDevices.size(); i++)
-		if (midiOutputDevices[i] == name)
+	for (int i = 0; i < availableMidiOutputDevices.size(); i++)
+		if (availableMidiOutputDevices[i] == name)
 			return i;
-	return -1;
-}
-
-int MidiManager::getCurrentInputDeviceIndexFromName(String name)
-{
-	for (auto it = availableMidiInputDevices.begin(); it != availableMidiInputDevices.end(); ++it)
-		if (*it == name)
-			return it - availableMidiInputDevices.begin();
 	return -1;
 }
 
 MultiOutMidiIn* MidiManager::getInput(String name)
 {
-	int index = getInputIndexFromName(name);
-
-	if (index == -1)
-	{
-		index = midiInputDevices.size();
-		midiInputDevices.add(name);
-		return inputList[index] = new MultiOutMidiIn(name);
-	}
+	if (name.isEmpty())
+		return nullptr;
 
 	return getInput(getInputIndexFromName(name));
 }
@@ -108,26 +95,19 @@ MultiOutMidiIn* MidiManager::getInput(int index)
 	if (index == -1)
 		return nullptr;
 
-	if (inputList.find(index) != inputList.end())
-		return inputList[index];
+	if (inputList.find(availableMidiInputDevices[index]) != inputList.end())
+		return inputList[availableMidiInputDevices[index]];
 
 	MultiOutMidiIn* midiInput = new MultiOutMidiIn(index);
 
-	inputList[index] = midiInput;
+	inputList[availableMidiInputDevices[index]] = midiInput;
 
 	return midiInput;
 }
 
 MidiOutput* MidiManager::getOutput(String name)
 {
-	int index = getInputIndexFromName(name);
-
-	if (index == -1)
-	{
-		index = midiOutputDevices.size();
-		midiOutputDevices.add(name);
-		return outputList[index] = MidiOutput::openDevice(index);
-	}
+	int index = getOutputIndexFromName(name);
 
 	return getOutput(index);
 }
@@ -137,13 +117,13 @@ MidiOutput* MidiManager::getOutput(int index)
 	if (index == -1)
 		return nullptr;
 
-	if (outputList.find(index) != outputList.end())
-		return outputList[index];
+	if (outputList.find(availableMidiOutputDevices[index]) != outputList.end())
+		return outputList[availableMidiOutputDevices[index]];
 
 	MidiOutput* midiOutput= MidiOutput::openDevice(index);
 
 	if(midiOutput != nullptr)
-		outputList[index] = midiOutput;
+		outputList[availableMidiOutputDevices[index]] = midiOutput;
 
 	return midiOutput;
 }
@@ -153,37 +133,32 @@ bool MidiManager::inputExists(String name)
 	return std::find(availableMidiInputDevices.begin(), availableMidiInputDevices.end(), name) != availableMidiInputDevices.end();
 }
 
-StringArray MidiManager::getActiveInputDevices()
-{
-	StringArray activeInputDevs;
-
-	for each (String devName in midiInputDevices)
-	{
-		if (std::find(availableMidiInputDevices.begin(), availableMidiInputDevices.end(), devName) != availableMidiInputDevices.end())
-			activeInputDevs.add(devName);
-	}
-
-	return activeInputDevs;
-}
-
-StringArray MidiManager::getInactiveInputDevices()
-{
-	StringArray inactiveInputDevs;
-
-	for (auto it = midiInputDevices.begin(); it = midiInputDevices.end(); ++it)
-		if (std::find(availableMidiInputDevices.begin(), availableMidiInputDevices.end(), *it) == availableMidiInputDevices.end())
-			inactiveInputDevs.add(*it);
-	
-	availableMidiInputDevices.clear();
-
-	return inactiveInputDevs;
-}
-
 bool MidiManager::outputExists(String name)
 {
-	return getOutputIndexFromName(name) != -1;
+	return std::find(availableMidiOutputDevices.begin(), availableMidiOutputDevices.end(), name) != availableMidiOutputDevices.end();
 }
 
+
+StringArray MidiManager::getMidiInputDevices()
+{
+	return availableMidiInputDevices;
+}
+
+StringArray MidiManager::getMidiOutputDevices()
+{
+	return availableMidiOutputDevices;
+}
+
+StringArray MidiManager::getAvailableDevices()
+{
+	StringArray devs = availableMidiInputDevices;
+	for each (String odev in availableMidiOutputDevices)
+	{
+		if (!inputExists(odev))
+			devs.add(odev);
+	}
+	return devs;
+}
 /*
 MidiInput* MidiManager::getInput(String name)
 {
@@ -226,4 +201,3 @@ MidiInputProcessor* MidiManager::getNewMidiInputProcessorInstance()
 
 	return inputProcessor;
 }
-

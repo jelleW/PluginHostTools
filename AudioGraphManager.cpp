@@ -134,7 +134,7 @@ bool AudioGraphManager::connectNodeToOutput(int nodeId, std::map<int, std::vecto
 
 int AudioGraphManager::getSampleRate()
 {
-	return graph.getSampleRate();
+	return (int)graph.getSampleRate();
 }
 
 int AudioGraphManager::getBlockSize()

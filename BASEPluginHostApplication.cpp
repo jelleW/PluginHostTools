@@ -62,6 +62,11 @@ void BASEPluginHostApplication::init()
 void BASEPluginHostApplication::close()
 {}
 
+DocumentWindow * BASEPluginHostApplication::getMainWindow()
+{
+	return mainWindow;
+}
+
 //==============================================================================
 void BASEPluginHostApplication::systemRequestedQuit()
 {
